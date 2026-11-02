@@ -61,6 +61,18 @@ export const MENU_BY_ID = Object.fromEntries(MENU.map((m) => [m.id, m]));
 
 export const PARTY = { 1: '아가씨 1인', 2: '아가씨 외 1인' };
 
+export const TABS = [
+  { id: 'egg', label: '달걀' },
+  { id: 'rice', label: '솥밥' },
+  { id: 'wok', label: '볶음·면' },
+  { id: 'dessert', label: '디저트' },
+  { id: 'secret', label: '시크릿' },
+];
+
+// 예약 불가 — 관리자 화면에서 정한 값이 시트에서 덮어씀
+// weekdays: 매주 요일, dates: 하루 전체, times: 매일 같은 시간, slots: { 'YYYY-MM-DD': [그날만 막는 시간] }
+export const BLOCKED = { weekdays: [], dates: [], times: [], slots: {} };
+
 // Kakao JavaScript 키 — 비어 있으면 SDK 없이 kakaotalk:// 열기만 시도
 export const KAKAO_JS_KEY = '';
 

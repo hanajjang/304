@@ -20,27 +20,33 @@ let justAdded = null;
 const missingImages = new Set();
 
 // ---------- 음식 이미지: assets/food/{id}.png, 없으면 임시 SVG 칩 ----------
-function chip(item) {
+// 관리자 화면에서 추가한 메뉴는 c1·c2가 없을 수 있음
+const isToken = (v) => /^--[\w-]+$/.test(v ?? '');
+
+export function chip(item) {
+  const c1 = isToken(item.c1) ? item.c1 : '--line-soft';
+  const c2 = isToken(item.c2) ? item.c2 : '--script';
   const wrap = document.createElement('span');
   wrap.className = 'food-art food-chip';
   wrap.innerHTML = `<svg viewBox="0 0 100 100" aria-hidden="true">
     <ellipse class="chip-plate" cx="50" cy="52" rx="46" ry="38"/>
-    <ellipse cx="50" cy="51" rx="30" ry="23" style="fill: var(${item.c1})"/>
-    <circle cx="40" cy="45" r="6" style="fill: var(${item.c2})"/>
-    <circle cx="59" cy="56" r="4.5" style="fill: var(${item.c2})"/>
-    <circle cx="61" cy="41" r="3" style="fill: var(${item.c2})"/>
+    <ellipse cx="50" cy="51" rx="30" ry="23" style="fill: var(${c1})"/>
+    <circle cx="40" cy="45" r="6" style="fill: var(${c2})"/>
+    <circle cx="59" cy="56" r="4.5" style="fill: var(${c2})"/>
+    <circle cx="61" cy="41" r="3" style="fill: var(${c2})"/>
   </svg>`;
   return wrap;
 }
 
-function foodImage(item) {
-  if (missingImages.has(item.id)) return chip(item);
+// 관리자 화면에서 올린 사진 → assets/food/{id}.png → 임시 칩 순서
+export function foodImage(item) {
+  if (!item.photo && missingImages.has(item.id)) return chip(item);
   const img = document.createElement('img');
-  img.className = 'food-art';
+  img.className = item.photo ? 'food-art food-photo' : 'food-art';
   img.alt = '';
-  img.src = `assets/food/${item.id}.png`;
+  img.src = item.photo || `assets/food/${item.id}.png`;
   img.addEventListener('error', () => {
-    missingImages.add(item.id);
+    if (!item.photo) missingImages.add(item.id);
     img.replaceWith(chip(item));
   }, { once: true });
   return img;
@@ -250,7 +256,7 @@ export function init(el) {
     const item = MENU_BY_ID[btn.dataset.pick];
     if (inCart(item.id)) {
       removeFromCart(item.id);
-    } else if (item.option) {
+    } else if (item.option && OPTION_SETS[item.option]) {
       openSheet(item, btn);
     } else {
       justAdded = item.id;
@@ -298,7 +304,8 @@ export function init(el) {
   renderTray();
 }
 
+// 메뉴가 시트에서 바뀌었을 수 있어 목록도 다시 그림
 export function show() {
-  syncButtons();
+  renderList();
   renderTray();
 }

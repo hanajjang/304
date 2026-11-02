@@ -4,8 +4,11 @@ import * as menu from './screens/menu.js';
 import * as schedule from './screens/schedule.js';
 import * as receipt from './screens/receipt.js';
 import * as guestbook from './screens/guestbook.js';
+import * as admin from './screens/admin.js';
+import { loadConfig } from './api.js';
 
-const screens = { welcome, menu, schedule, receipt, guestbook };
+// #admin은 링크 없이 주소로만 들어감
+const screens = { welcome, menu, schedule, receipt, guestbook, admin };
 const DEFAULT = 'welcome';
 // 뒤로 갈 기록이 없을 때(링크로 바로 들어온 경우) 흐름상 앞 단계
 const PARENT = { menu: 'welcome', schedule: 'menu', receipt: 'schedule', guestbook: 'welcome' };
@@ -38,7 +41,13 @@ function route() {
   screens[name].show?.(els[name]);
 }
 
+loadConfig();
 for (const [key, mod] of Object.entries(screens)) mod.init?.(els[key]);
+
+// 시트에서 새 메뉴·예약 불가 설정이 오면 지금 화면을 다시 그림 (관리자 화면은 입력 중일 수 있어 제외)
+window.addEventListener('config', () => {
+  if (current && current !== 'admin') screens[current].show?.(els[current]);
+});
 
 document.addEventListener('click', (e) => {
   if (!e.target.closest('[data-nav-back]')) return;

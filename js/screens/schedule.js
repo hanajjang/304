@@ -1,12 +1,12 @@
 // #schedule — 날짜 → 시간 → 인원
-import { PARTY } from '../data.js';
+import { PARTY, BLOCKED } from '../data.js';
 import { state, setSchedule, isScheduleComplete } from '../state.js';
 
-const WEEK = ['일', '월', '화', '수', '목', '금', '토'];
+export const WEEK = ['일', '월', '화', '수', '목', '금', '토'];
 const MONTHS_AHEAD = 3;
 
 // 12:00 ~ 20:00, 30분 단위
-const TIMES = [];
+export const TIMES = [];
 for (let m = 12 * 60; m <= 20 * 60; m += 30) {
   TIMES.push(`${String(Math.floor(m / 60)).padStart(2, '0')}:${m % 60 ? '30' : '00'}`);
 }
@@ -32,6 +32,19 @@ function today() {
 export function scheduleSummary({ date, time, party }) {
   const d = parseKey(date);
   return `${d.getMonth() + 1}월 ${d.getDate()}일 (${WEEK[d.getDay()]}) · ${time} · ${PARTY[party]}`;
+}
+
+// 관리자 화면에서 막은 시간: 매일 막은 시간 + 그 날짜만 막은 시간
+function isBlockedTime(dateKey, time) {
+  return BLOCKED.times.includes(time) || (BLOCKED.slots?.[dateKey] ?? []).includes(time);
+}
+
+// 관리자 화면에서 막은 요일·날짜, 또는 그날 시간이 전부 막힌 날
+function isBlockedDate(date) {
+  const key = toKey(date);
+  return BLOCKED.weekdays.includes(date.getDay())
+    || BLOCKED.dates.includes(key)
+    || TIMES.every((t) => isBlockedTime(key, t));
 }
 
 // 오늘이면 이미 지난 시각은 고를 수 없음
@@ -80,7 +93,7 @@ function renderCalendar() {
     btn.className = 'cal-day';
     btn.dataset.date = key;
     btn.textContent = d;
-    btn.disabled = date < t;
+    btn.disabled = date < t || isBlockedDate(date);
     btn.setAttribute('aria-label', `${m + 1}월 ${d}일 ${WEEK[date.getDay()]}요일`);
     btn.setAttribute('aria-pressed', String(key === state.schedule.date));
     if (key === toKey(t)) btn.classList.add('is-today');
@@ -97,7 +110,7 @@ function renderTimes() {
     btn.className = 'chip';
     btn.dataset.time = t;
     btn.textContent = t;
-    btn.disabled = Boolean(date) && isPastTime(date, t);
+    btn.disabled = date ? isBlockedTime(date, t) || isPastTime(date, t) : BLOCKED.times.includes(t);
     btn.setAttribute('aria-pressed', String(t === time));
     return btn;
   }));
@@ -139,7 +152,8 @@ export function init(el) {
     const day = e.target.closest('[data-date]');
     if (!day) return;
     const { time } = state.schedule;
-    setSchedule({ date: day.dataset.date, time: time && isPastTime(day.dataset.date, time) ? null : time });
+    const key = day.dataset.date;
+    setSchedule({ date: key, time: time && (isPastTime(key, time) || isBlockedTime(key, time)) ? null : time });
     el.querySelectorAll('[data-date]').forEach((b) => b.setAttribute('aria-pressed', String(b === day)));
     renderTimes();
     renderSteps();
@@ -168,10 +182,12 @@ export function init(el) {
 }
 
 export function show() {
-  // 저장된 날짜·시간이 이미 지났으면 비움
+  // 저장된 날짜·시간이 이미 지났거나 예약 불가가 되었으면 비움
   const { date, time } = state.schedule;
-  if (date && parseKey(date) < today()) setSchedule({ date: null, time: null });
-  else if (date && time && isPastTime(date, time)) setSchedule({ time: null });
+  if (date && (parseKey(date) < today() || isBlockedDate(parseKey(date)))) setSchedule({ date: null, time: null });
+  else if (time && (date ? isBlockedTime(date, time) || isPastTime(date, time) : BLOCKED.times.includes(time))) {
+    setSchedule({ time: null });
+  }
 
   const base = state.schedule.date ? parseKey(state.schedule.date) : today();
   view = new Date(base.getFullYear(), base.getMonth(), 1);

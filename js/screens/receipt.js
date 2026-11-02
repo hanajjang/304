@@ -19,7 +19,9 @@ function cartItems() {
 function optionText(item) {
   if (!item.picked) return '';
   const set = OPTION_SETS[item.option];
-  return set.free ? item.picked : `${set.name}: ${item.picked}`;
+  // 관리자가 옵션을 지운 뒤에도 담겨 있던 고른 값은 그대로 보여 줌
+  if (!set || set.free) return item.picked;
+  return `${set.name}: ${item.picked}`;
 }
 
 // "리액션 11회 + 앙코르": N회는 합산, 횟수 없는 청구는 그대로 덧붙임
