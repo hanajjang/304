@@ -61,9 +61,10 @@ async function busy(btn, fn) {
   }
 }
 
+// 서버가 이유 없이 실패를 돌려줘도 응답 내용을 원인으로 남김
 async function post(body) {
   const res = await apiPost({ ...body, password });
-  if (!res.ok) throw new Error(res.error || 'save');
+  if (!res.ok) throw new Error(res.error || `서버 응답 ${JSON.stringify(res)}`);
   return res;
 }
 
@@ -207,7 +208,14 @@ async function submitForm() {
   let url = photo.url;
   if (photo.data) {
     status('사진 올리는 중…');
-    url = (await post({ action: 'uploadPhoto', mime: 'image/jpeg', data: photo.data.split(',')[1] })).url;
+    const data = photo.data.split(',')[1] ?? '';
+    try {
+      url = (await post({ action: 'uploadPhoto', mime: 'image/jpeg', data })).url;
+    } catch (err) {
+      // 어느 단계에서 막혔는지 + 보낸 사진 크기를 원인에 덧붙임
+      if (err.message !== 'auth') err.message = `사진 올리기 단계, 사진 ${Math.round((data.length * 3) / 4 / 1024)}KB · ${err.message}`;
+      throw err;
+    }
   }
   const item = {
     ...(editing ?? { id: `m${Date.now().toString(36)}` }),
