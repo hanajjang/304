@@ -61,4 +61,8 @@
   --radius-card: 14px;
   --radius-pill: 999px;
   --tap: 44px;
+
+  /* 모션 */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-lift: cubic-bezier(0.4, 0, 0.2, 1);
 }

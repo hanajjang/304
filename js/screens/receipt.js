@@ -43,7 +43,7 @@ function kakaoText(items) {
     return `  - ${item.name}${opt ? ` (${opt})` : ''}`;
   });
   return [
-    '[304호 만찬 예약 심사 청구서]',
+    '[파인다이닝 304 만찬 예약 심사 청구서]',
     `• 귀빈: ${PARTY[party]}`,
     `• 일시: ${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 ${WEEK_LONG[d.getDay()]} ${time}`,
     '• 하사받을 메뉴:',

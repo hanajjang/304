@@ -80,6 +80,39 @@ button, input { font: inherit; color: inherit; }
 
 .screen-head h1:focus { outline: none; }
 
+/* 상단 이동: ‹ 뒤로 / ⌂ 처음으로 — 화면 위 여백 안쪽으로 끌어올림 */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  margin: calc(var(--sp-5) * -1) calc(var(--sp-2) * -1) calc(var(--sp-4) * -1);
+}
+
+/* 처음으로 버튼은 혼자 있어도 오른쪽 */
+.topbar a.icon-btn { margin-left: auto; }
+
+.icon-btn {
+  width: var(--tap);
+  height: var(--tap);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--primary);
+  cursor: pointer;
+}
+
+.icon-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 /* 하단 고정 영역 */
 .dock {
   position: sticky;
@@ -245,8 +278,17 @@ button, input { font: inherit; color: inherit; }
   width: 44px;
   height: 44px;
   margin: -22px 0 0 -22px;
-  transition: left 0.5s, top 0.5s;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition: left 0.5s var(--ease-out), top 0.5s var(--ease-out);
 }
+
+.plate .food-art { filter: drop-shadow(0 2px 2px var(--shadow)); }
+
+.tray:focus { outline: none; }
 
 .plate-body { position: relative; width: 100%; height: 100%; }
 
@@ -273,45 +315,63 @@ button, input { font: inherit; color: inherit; }
   fill: var(--pewter-hi);
   stroke: var(--pewter-edge);
   stroke-width: 1.5;
+  /* 오른쪽 테두리를 축으로 손잡이를 들어 올리듯 */
+  transform-origin: 85% 100%;
 }
 
 .plate-steam {
   position: absolute;
   left: 50%;
-  top: -6px;
-  gap: 5px;
+  top: -8px;
+  gap: 6px;
+  align-items: flex-end;
   transform: translateX(-50%);
 }
 
 .plate-steam i {
+  --sway: 2px;
   width: 2px;
-  height: 12px;
+  height: 14px;
   border-radius: var(--radius-pill);
-  background: var(--paper);
+  background: linear-gradient(to top, transparent, var(--paper) 45%, transparent);
   opacity: 0;
 }
 
-.plate-steam i:nth-child(2) { height: 16px; }
+.plate-steam i:nth-child(2) { --sway: -2px; height: 18px; }
+.plate-steam i:nth-child(3) { --sway: 3px; }
 
-/* 새로 담긴 접시만: 총 1.4초 */
-.is-new .plate-body { animation: plate-in 0.4s ease-out both; }
-.is-new .plate-cloche { display: block; animation: cloche-lift 0.4s ease-in 0.6s forwards; }
+/* 새로 담긴 접시만: 총 1.4초 (내려앉기 → 0.6초에 뚜껑 열림 → 김 2회) */
+.is-new .plate-body { animation: plate-in 0.5s var(--ease-out) both; }
+.is-new .plate-cloche { display: block; animation: cloche-lift 0.5s var(--ease-lift) 0.6s forwards; }
 .is-new .plate-steam { display: flex; }
-.is-new .plate-steam i { animation: steam 0.3s ease-out 0.8s 2; }
+.is-new .plate-steam i { animation: steam 0.29s ease-out 0.78s 2; }
+.is-new .plate-steam i:nth-child(2) { animation-delay: 0.8s; }
+.is-new .plate-steam i:nth-child(3) { animation-delay: 0.82s; }
+
+/* 물린 접시: 살짝 가라앉으며 사라짐 */
+.plate.is-leaving { pointer-events: none; animation: plate-out 0.25s var(--ease-lift) forwards; }
 
 @keyframes plate-in {
-  from { opacity: 0; transform: scale(0.6); }
-  to { opacity: 1; transform: scale(1); }
+  0% { opacity: 0; transform: translateY(-10px) scale(0.6); }
+  60% { opacity: 1; transform: translateY(1px) scale(1.03); }
+  100% { opacity: 1; transform: none; }
 }
 
 @keyframes cloche-lift {
-  to { opacity: 0; transform: translate(0, -30px) rotate(-14deg); }
+  0% { opacity: 1; transform: none; }
+  20% { opacity: 1; transform: translateY(-3px); }
+  55% { opacity: 1; }
+  100% { opacity: 0; transform: translate(0, -30px) rotate(-14deg); }
 }
 
 @keyframes steam {
-  0% { opacity: 0; transform: translateY(4px); }
-  40% { opacity: 0.9; }
-  100% { opacity: 0; transform: translateY(-10px); }
+  0% { opacity: 0; transform: translate(0, 4px) scaleY(0.6); }
+  35% { opacity: 0.9; }
+  100% { opacity: 0; transform: translate(var(--sway), -12px) scaleY(1.2); }
+}
+
+@keyframes plate-out {
+  to { opacity: 0; transform: translateY(4px) scale(0.8); }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>304호</title>
+  <title>파인다이닝 304</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Great+Vibes&family=Nanum+Gothic+Coding:wght@400;700&family=Nanum+Pen+Script&family=Noto+Serif+KR:wght@700&display=swap">
@@ -19,7 +19,7 @@
       <section data-screen="welcome" class="screen" aria-labelledby="welcome-title">
         <header class="screen-head">
           <p class="script" lang="en">Welcome</p>
-          <h1 id="welcome-title" class="title-kr" tabindex="-1">304호</h1>
+          <h1 id="welcome-title" class="title-kr" tabindex="-1">파인다이닝 304</h1>
           <p class="eyebrow" lang="en">THE 304 RESIDENCE</p>
         </header>
 
@@ -48,7 +48,7 @@
           </svg>
 
           <p class="welcome-copy">
-            304호의 문이 열렸습니다.<br>
+            파인다이닝 304의 문이 열렸습니다.<br>
             아가씨, 누추한 바깥세상에서 고생 많으셨습니다.<br>
             부디 이곳에서만큼은 품위를 잃지 마십시오.
           </p>
@@ -66,13 +66,18 @@
 
       <!-- #menu 만찬 구성 -->
       <section data-screen="menu" class="screen" aria-labelledby="menu-title" hidden>
+        <nav class="topbar" aria-label="화면 이동">
+          <a class="icon-btn" href="#welcome" aria-label="처음으로">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7M6.5 9.5V20h11V9.5"/></svg>
+          </a>
+        </nav>
         <header class="screen-head">
           <p class="script" lang="en">The 304 Residence</p>
-          <h1 id="menu-title" class="title-kr" tabindex="-1">304호 만찬 장부</h1>
+          <h1 id="menu-title" class="title-kr" tabindex="-1">파인다이닝 304 만찬 장부</h1>
           <p class="aside"><em>아가씨, 오늘 헤드 셰프의 컨디션이 매우 훌륭하니 감사히 즐기시기 바랍니다.</em></p>
         </header>
 
-        <div class="tray" data-tray>
+        <div class="tray" data-tray tabindex="-1">
           <span class="tray-badge" data-tray-badge aria-live="polite">만찬 0품</span>
           <p class="tray-empty" data-tray-empty>쟁반이 비어 있습니다. 집사가 대기 중입니다.</p>
           <div class="tray-plates" data-tray-plates></div>
@@ -107,6 +112,14 @@
 
       <!-- #schedule 일정 정하기 -->
       <section data-screen="schedule" class="screen" aria-labelledby="schedule-title" hidden>
+        <nav class="topbar" aria-label="화면 이동">
+          <button class="icon-btn" type="button" data-nav-back aria-label="뒤로">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>
+          </button>
+          <a class="icon-btn" href="#welcome" aria-label="처음으로">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7M6.5 9.5V20h11V9.5"/></svg>
+          </a>
+        </nav>
         <header class="screen-head">
           <h1 id="schedule-title" class="title-kr" tabindex="-1">언제 납시겠습니까, 아가씨?</h1>
           <p class="sub">날짜 → 시간 → 인원 순서로 정해 주십시오.</p>
@@ -139,6 +152,14 @@
 
       <!-- #receipt 예약 심사 청구서 -->
       <section data-screen="receipt" class="screen" aria-labelledby="receipt-title" hidden>
+        <nav class="topbar" aria-label="화면 이동">
+          <button class="icon-btn" type="button" data-nav-back aria-label="뒤로">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>
+          </button>
+          <a class="icon-btn" href="#welcome" aria-label="처음으로">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7M6.5 9.5V20h11V9.5"/></svg>
+          </a>
+        </nav>
         <h1 id="receipt-title" class="sr-only" tabindex="-1">예약 심사 청구서</h1>
 
         <a class="summary-pill" href="#schedule">
@@ -147,7 +168,7 @@
         </a>
 
         <article class="receipt">
-          <p class="receipt-logo">304호</p>
+          <p class="receipt-logo">파인다이닝 304</p>
           <p class="receipt-center">정찬 · 능청 · 품위</p>
           <p class="receipt-center">수석 집사 발행 · No. <span data-receipt-no>304-XXXX</span></p>
           <hr class="receipt-rule">
@@ -185,6 +206,14 @@
 
       <!-- #guestbook 만찬 품평록 -->
       <section data-screen="guestbook" class="screen" aria-labelledby="guestbook-title" hidden>
+        <nav class="topbar" aria-label="화면 이동">
+          <button class="icon-btn" type="button" data-nav-back aria-label="뒤로">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>
+          </button>
+          <a class="icon-btn" href="#welcome" aria-label="처음으로">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7M6.5 9.5V20h11V9.5"/></svg>
+          </a>
+        </nav>
         <header class="screen-head">
           <p class="script" lang="en">Dinner Review</p>
           <h1 id="guestbook-title" class="title-kr" tabindex="-1">만찬 품평록</h1>

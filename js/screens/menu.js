@@ -100,10 +100,13 @@ function syncButtons() {
 }
 
 // ---------- 은쟁반 ----------
+// 접시를 누르면 그 메뉴를 물림
 function plateEl(item) {
-  const el = document.createElement('div');
+  const el = document.createElement('button');
+  el.type = 'button';
   el.className = 'plate';
   el.dataset.id = item.id;
+  el.setAttribute('aria-label', `${item.short} 물리기`);
   const body = document.createElement('div');
   body.className = 'plate-body';
   body.append(foodImage(item));
@@ -120,11 +123,21 @@ function plateEl(item) {
   return el;
 }
 
+// 물린 접시는 사라지는 모션 뒤 제거 (동작 줄이기·숨은 화면이면 바로)
+function leave(el) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || root.hidden) return el.remove();
+  el.classList.add('is-leaving');
+  el.addEventListener('animationend', () => el.remove(), { once: true });
+}
+
 function renderTray() {
   const cart = state.cart.filter((c) => MENU_BY_ID[c.id]);
   const plates = root.querySelector('[data-tray-plates]');
   const slots = SLOTS[cart.length] ?? [];
-  const existing = new Map([...plates.children].map((el) => [el.dataset.id, el]));
+  const existing = new Map(
+    [...plates.children].filter((el) => !el.classList.contains('is-leaving')).map((el) => [el.dataset.id, el]),
+  );
 
   cart.forEach((c, i) => {
     let el = existing.get(c.id);
@@ -138,7 +151,7 @@ function renderTray() {
     el.style.left = `${(slots[i][0] / TRAY_W) * 100}%`;
     el.style.top = `${(slots[i][1] / TRAY_H) * 100}%`;
   });
-  existing.forEach((el) => el.remove());
+  existing.forEach(leave);
   justAdded = null;
 
   root.querySelector('[data-tray-badge]').textContent =
@@ -217,6 +230,13 @@ export function init(el) {
     activeTab = tab.dataset.tab;
     el.querySelectorAll('[data-tab]').forEach((t) => t.setAttribute('aria-pressed', String(t === tab)));
     renderList();
+  });
+
+  el.querySelector('[data-tray-plates]').addEventListener('click', (e) => {
+    const plate = e.target.closest('.plate');
+    if (!plate) return;
+    removeFromCart(plate.dataset.id);
+    el.querySelector('[data-tray]').focus({ preventScroll: true });
   });
 
   el.querySelector('[data-menu-list]').addEventListener('click', (e) => {
