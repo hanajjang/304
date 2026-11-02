@@ -86,6 +86,29 @@
         <!-- 스크롤해도 쟁반·탭은 위에 고정, 메뉴 카드만 아래로 흐름 -->
         <div class="tray-dock" data-tray-dock>
         <div class="tray" data-tray tabindex="-1">
+          <!-- 은쟁반: 330×178 무광 퓨터, 구슬 테두리 -->
+          <svg class="tray-art" viewBox="0 0 330 178" aria-hidden="true">
+            <defs>
+              <radialGradient id="tray-well" cx="42%" cy="36%" r="72%">
+                <stop offset="0" class="tray-stop-hi"/>
+                <stop offset="1" class="tray-stop-lo"/>
+              </radialGradient>
+              <linearGradient id="tray-rim" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" class="tray-stop-hi"/>
+                <stop offset="1" class="tray-stop-edge"/>
+              </linearGradient>
+              <filter id="tray-soft" x="-20%" y="-30%" width="140%" height="160%">
+                <feGaussianBlur stdDeviation="5"/>
+              </filter>
+            </defs>
+            <ellipse class="tray-shadow" cx="165" cy="95" rx="158" ry="80" filter="url(#tray-soft)"/>
+            <ellipse cx="165" cy="89" rx="163" ry="87" fill="url(#tray-rim)"/>
+            <ellipse class="tray-beads-dark" cx="165" cy="89" rx="155" ry="79"/>
+            <ellipse class="tray-beads-light" cx="164.4" cy="88.3" rx="155" ry="79"/>
+            <ellipse cx="165" cy="89" rx="144" ry="70" fill="url(#tray-well)"/>
+            <ellipse class="tray-groove" cx="165" cy="90" rx="143" ry="69"/>
+            <ellipse class="tray-sheen" cx="122" cy="58" rx="78" ry="20" filter="url(#tray-soft)"/>
+          </svg>
           <span class="tray-badge" data-tray-badge aria-live="polite">만찬 0품</span>
           <p class="tray-empty" data-tray-empty>쟁반이 비어 있습니다. 집사가 대기 중입니다.</p>
           <div class="tray-plates" data-tray-plates></div>

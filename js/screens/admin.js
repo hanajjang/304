@@ -2,7 +2,7 @@
 import { MENU, OPTION_SETS, TABS, BLOCKED } from '../data.js';
 import { apiPost, fetchConfig, updateConfig } from '../api.js';
 import { TIMES, WEEK, toKey, parseKey } from './schedule.js';
-import { foodImage } from './menu.js';
+import { foodImage, platedPhoto } from './menu.js';
 
 const PW_KEY = '304-admin'; // 탭을 닫으면 지워지는 sessionStorage
 const PHOTO_MAX = 900; // 올리기 전 긴 변 기준으로 줄임(px)
@@ -151,10 +151,7 @@ function fillOptionSelect() {
 function setPreview(src, item) {
   const box = $('[data-admin-preview]');
   if (src) {
-    const img = el('img', 'food-art food-photo');
-    img.alt = '';
-    img.src = src;
-    box.replaceChildren(img);
+    box.replaceChildren(platedPhoto(src));
   } else {
     box.replaceChildren(foodImage({ ...item, photo: '' }));
   }

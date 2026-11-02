@@ -38,15 +38,32 @@ export function chip(item) {
   return wrap;
 }
 
+// 실사진을 흰 접시에 담음 (메뉴 카드·쟁반·관리자 미리보기 공용)
+export function platedPhoto(src, onError) {
+  const plate = document.createElement('span');
+  plate.className = 'food-art food-plated';
+  const img = document.createElement('img');
+  img.alt = '';
+  img.decoding = 'async';
+  img.src = src;
+  if (onError) img.addEventListener('error', onError, { once: true });
+  plate.append(img);
+  return plate;
+}
+
 // 관리자 화면에서 올린 사진 → assets/food/{id}.png → 임시 칩 순서
 export function foodImage(item) {
-  if (!item.photo && missingImages.has(item.id)) return chip(item);
+  if (item.photo) {
+    const plate = platedPhoto(item.photo, () => plate.replaceWith(chip(item)));
+    return plate;
+  }
+  if (missingImages.has(item.id)) return chip(item);
   const img = document.createElement('img');
-  img.className = item.photo ? 'food-art food-photo' : 'food-art';
+  img.className = 'food-art';
   img.alt = '';
-  img.src = item.photo || `assets/food/${item.id}.png`;
+  img.src = `assets/food/${item.id}.png`;
   img.addEventListener('error', () => {
-    if (!item.photo) missingImages.add(item.id);
+    missingImages.add(item.id);
     img.replaceWith(chip(item));
   }, { once: true });
   return img;
@@ -134,6 +151,7 @@ function plateEl(item) {
     <svg class="plate-cloche" viewBox="0 0 48 36" aria-hidden="true">
       <path d="M4 32 C4 15 13 8 24 8 C35 8 44 15 44 32 Z"/>
       <circle cx="24" cy="5" r="3"/>
+      <path class="cloche-shine" d="M11 26 C12 19 16 14 21 12"/>
     </svg>
     <span class="plate-steam" aria-hidden="true"><i></i><i></i><i></i></span>`);
   const name = document.createElement('span');
