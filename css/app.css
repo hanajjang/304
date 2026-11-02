@@ -1,6 +1,9 @@
 /* ---------- 기본 ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 
+/* hidden 속성은 클래스의 display보다 항상 우선 (관리자 본문이 로그인 전에 보이던 문제 방지) */
+[hidden] { display: none !important; }
+
 html, body { margin: 0; }
 
 body {
