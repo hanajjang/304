@@ -1,5 +1,5 @@
 // #menu — 탭, 메뉴 카드, 옵션 시트, 은쟁반
-import { MENU, MENU_BY_ID, OPTION_SETS } from '../data.js';
+import { MENU, MENU_BY_ID, OPTION_SETS, TABS } from '../data.js';
 import { state, subscribe, inCart, addToCart, removeFromCart, CART_MAX } from '../state.js';
 
 // 접시 중심 좌표(330×178 쟁반 기준 px), 개수별 — 좁은 화면에서 쟁반이 줄면 비율로 따라감
@@ -92,6 +92,20 @@ function renderList() {
   const list = root.querySelector('[data-menu-list]');
   list.replaceChildren(...MENU.filter((m) => m.tab === activeTab).map(cardEl));
   syncButtons();
+}
+
+// 분류는 관리자 화면에서 바뀔 수 있어 TABS로 그림
+function renderTabs() {
+  if (!TABS.some((t) => t.id === activeTab)) activeTab = TABS[0]?.id;
+  root.querySelector('.tabs').replaceChildren(...TABS.map((t) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tab';
+    btn.dataset.tab = t.id;
+    btn.textContent = t.label;
+    btn.setAttribute('aria-pressed', String(t.id === activeTab));
+    return btn;
+  }));
 }
 
 function syncButtons() {
@@ -300,12 +314,14 @@ export function init(el) {
     renderTray();
   });
 
+  renderTabs();
   renderList();
   renderTray();
 }
 
-// 메뉴가 시트에서 바뀌었을 수 있어 목록도 다시 그림
+// 분류·메뉴가 시트에서 바뀌었을 수 있어 탭·목록도 다시 그림
 export function show() {
+  renderTabs();
   renderList();
   renderTray();
 }

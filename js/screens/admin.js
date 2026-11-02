@@ -10,6 +10,7 @@ const PHOTO_MAX = 900; // 올리기 전 긴 변 기준으로 줄임(px)
 let root;
 let password = null;
 let menu = [];
+let tabs = [];
 let options = {};
 let blocked = { weekdays: [], dates: [], times: [], slots: {} };
 let editing = null; // 수정 중인 메뉴 (새 메뉴면 null)
@@ -40,8 +41,13 @@ function status(msg, isError = false) {
   node.classList.toggle('is-error', isError);
 }
 
-const failMsg = (err, what = '저장하지') =>
-  err.message === 'auth' ? '로그인이 풀렸습니다. 다시 들어가 주세요.' : `${what} 못했습니다. 잠시 뒤 다시 시도해 주세요.`;
+// 원인을 알 수 있으면 함께 보여 줌 (Apps Script가 돌려준 오류 문장 등)
+function failMsg(err, what = '저장하지') {
+  if (err.message === 'auth') return '로그인이 풀렸습니다. 다시 들어가 주세요.';
+  if (err.message === 'scope') return `${what} 못했습니다. Apps Script에서 authorize 함수를 한 번 실행해 권한을 승인해 주세요.`;
+  const detail = err.message && err.message !== 'save' ? ` (원인: ${err.message})` : '';
+  return `${what} 못했습니다. 잠시 뒤 다시 시도해 주세요.${detail}`;
+}
 
 // Enter로 제출하면 submitter가 없을 수 있어 폼의 제출 버튼으로 대신함
 const submitBtn = (e) => e.submitter ?? e.target.querySelector('[type="submit"]');
@@ -74,11 +80,13 @@ async function enter() {
   const cfg = await fetchConfig();
   // 시트에 아직 없으면 지금 앱에 있는 기본값에서 시작
   menu = clone(cfg.menu ?? MENU);
+  tabs = clone(cfg.tabs ?? TABS);
   options = clone(cfg.options ?? OPTION_SETS);
   blocked = { weekdays: [], dates: [], times: [], slots: {}, ...clone(cfg.blocked ?? BLOCKED) };
   $('[data-admin-login]').hidden = true;
   $('[data-admin-body]').hidden = false;
   renderMenu();
+  renderTabList();
   renderOptions();
   renderBlocked();
   status('');
@@ -86,7 +94,11 @@ async function enter() {
 
 // ---------- 메뉴 ----------
 function renderMenu() {
-  $('[data-admin-list]').replaceChildren(...TABS.flatMap((tab) => {
+  // 분류가 지워진 메뉴가 있으면 맨 아래 '분류 없음'으로 모아 보여 줌
+  const known = new Set(tabs.map((t) => t.id));
+  const orphan = menu.filter((m) => !known.has(m.tab)).map((m) => m.tab);
+  const groups = [...tabs, ...[...new Set(orphan)].map((id) => ({ id, label: '분류 없음' }))];
+  $('[data-admin-list]').replaceChildren(...groups.flatMap((tab) => {
     const items = menu.filter((m) => m.tab === tab.id);
     if (!items.length) return [];
     return [el('li', 'admin-group', tab.label), ...items.map((item, i) => {
@@ -108,6 +120,23 @@ function renderMenu() {
       return li;
     })];
   }));
+}
+
+// 고른 옵션이 손님에게 어떻게 보이는지 메뉴 폼 안에서 바로 알려 줌
+function renderOptionHint() {
+  const hint = $('[data-admin-option-hint]');
+  const set = options[$('[data-admin-options]').value];
+  hint.hidden = !set;
+  if (!set) return;
+  const lines = [
+    set.free ? '손님이 메뉴를 담을 때 한 줄 입력 칸이 나옵니다.' : `손님이 고를 선택지: ${(set.choices ?? []).map((c) => c.label).join(' / ')}`,
+    `손님에게 묻는 말: ${set.question || '(비어 있음)'}`,
+  ];
+  if (/\[문구 필요\]/.test(set.name + set.question)) lines.push('이 옵션의 이름·묻는 말이 아직 [문구 필요]입니다.');
+  hint.replaceChildren(
+    ...lines.map((t) => el('p', null, t)),
+    button('btn btn-sm', '이 옵션 고치기', { goOption: $('[data-admin-options]').value }),
+  );
 }
 
 function fillOptionSelect() {
@@ -136,11 +165,13 @@ function openForm(item) {
   photo = { url: item?.photo || null, data: null };
   form.reset();
   fillOptionSelect();
+  $('[data-admin-tabs]').replaceChildren(...tabs.map((t) => new Option(t.label, t.id)));
   $('[data-admin-form-title]').textContent = item ? '메뉴 수정' : '메뉴 추가';
   if (item) {
     for (const key of ['tab', 'name', 'short', 'desc', 'bill']) form.elements[key].value = item[key] ?? '';
     form.elements.option.value = options[item.option] ? item.option : '';
   }
+  renderOptionHint();
   setPreview(photo.url, item ?? { id: '' });
   form.hidden = false;
   form.elements.tab.focus();
@@ -167,6 +198,7 @@ async function saveMenu(next, okMsg) {
   menu = next;
   updateConfig({ menu: clone(next) });
   renderMenu();
+  renderTabList(); // 분류별 메뉴 개수 갱신
   status(okMsg);
 }
 
@@ -206,6 +238,34 @@ async function move(id, dir) {
   // 다시 그린 뒤에도 같은 메뉴의 화살표에 포커스 유지
   const again = $(`[data-move="${dir}"][data-id="${id}"]`);
   (again && !again.disabled ? again : $(`[data-move="${-dir}"][data-id="${id}"]`))?.focus();
+}
+
+// ---------- 분류 ----------
+function renderTabList() {
+  $('[data-admin-tab-list]').replaceChildren(...tabs.map((t, i) => {
+    const li = el('li', 'admin-item');
+    li.dataset.tabId = t.id;
+    const input = el('input', 'field admin-tab-label');
+    Object.assign(input, { maxLength: 10, value: t.label });
+    input.setAttribute('aria-label', `분류 ${i + 1} 이름`);
+    const count = menu.filter((m) => m.tab === t.id).length;
+    const up = button('icon-btn admin-move', '↑', { tabMove: -1 }, `${t.label} 위로`);
+    const down = button('icon-btn admin-move', '↓', { tabMove: 1 }, `${t.label} 아래로`);
+    up.disabled = i === 0;
+    down.disabled = i === tabs.length - 1;
+    const moves = el('span', 'admin-moves');
+    moves.append(up, down);
+    li.append(input, el('span', 'admin-count', `${count}개`), moves, button('btn btn-sm', '삭제', { tabDelete: '' }));
+    return li;
+  }));
+}
+
+// 화면에 입력 중인 이름을 tabs로 옮김
+function collectTabs() {
+  return [...root.querySelectorAll('[data-tab-id]')].map((li) => ({
+    id: li.dataset.tabId,
+    label: li.querySelector('.admin-tab-label').value.trim(),
+  }));
 }
 
 // ---------- 옵션 ----------
@@ -304,6 +364,11 @@ function renderDay() {
   const allDay = blocked.dates.includes(dayKey);
   const slots = blocked.slots[dayKey] ?? [];
   $('[data-admin-day-title]').textContent = dateLabel(dayKey);
+  // 매주 요일 막기에 걸린 날이면, 여기서 시간을 골라도 손님은 그날을 아예 못 고름
+  const weekday = parseKey(dayKey).getDay();
+  const warn = $('[data-admin-day-warn]');
+  warn.hidden = !blocked.weekdays.includes(weekday);
+  warn.textContent = `매주 ${WEEK[weekday]}요일이 막혀 있어서, 손님은 이 날짜를 고를 수 없습니다. 이 날을 열려면 위 '요일 (매주)'에서 '${WEEK[weekday]}' 칸을 다시 눌러 풀어 주세요.`;
   $('[data-admin-allday]').setAttribute('aria-pressed', String(allDay));
   $('[data-admin-day-times]').replaceChildren(...TIMES.map((t) => {
     const btn = chip(t, allDay || slots.includes(t) || blocked.times.includes(t), { dayTime: t });
@@ -346,10 +411,15 @@ function tidyBlocked() {
 }
 
 // ---------- 화면 ----------
+function showPanel(name) {
+  root.querySelectorAll('[data-admin-tab]').forEach((t) => t.setAttribute('aria-pressed', String(t.dataset.adminTab === name)));
+  root.querySelectorAll('[data-admin-panel]').forEach((p) => { p.hidden = p.dataset.adminPanel !== name; });
+  status('');
+}
+
 export function init(node) {
   root = node;
 
-  $('[data-admin-tabs]').replaceChildren(...TABS.map((t) => new Option(t.label, t.id)));
   $('[data-admin-date]').min = toKey(new Date());
 
   $('[data-admin-login]').addEventListener('submit', async (e) => {
@@ -367,10 +437,7 @@ export function init(node) {
 
   $('.tabs').addEventListener('click', (e) => {
     const tab = e.target.closest('[data-admin-tab]');
-    if (!tab) return;
-    root.querySelectorAll('[data-admin-tab]').forEach((t) => t.setAttribute('aria-pressed', String(t === tab)));
-    root.querySelectorAll('[data-admin-panel]').forEach((p) => { p.hidden = p.dataset.adminPanel !== tab.dataset.adminTab; });
-    status('');
+    if (tab) showPanel(tab.dataset.adminTab);
   });
 
   // 메뉴
@@ -428,6 +495,63 @@ export function init(node) {
         await saveMenu(menu.filter((m) => m.id !== item.id), '삭제했습니다.');
       } catch (err) {
         status(failMsg(err, '삭제하지'), true);
+      }
+    });
+  });
+
+  $('[data-admin-options]').addEventListener('change', renderOptionHint);
+
+  // 메뉴 폼의 '이 옵션 고치기' → 옵션 탭의 해당 카드로
+  $('[data-admin-option-hint]').addEventListener('click', (e) => {
+    const go = e.target.closest('[data-go-option]');
+    if (!go) return;
+    showPanel('options');
+    const card = root.querySelector(`[data-option-key="${go.dataset.goOption}"]`);
+    card?.scrollIntoView({ block: 'center' });
+    card?.querySelector('[data-f="name"]').focus({ preventScroll: true });
+  });
+
+  // 분류
+  $('[data-admin-tab-list]').addEventListener('click', (e) => {
+    const li = e.target.closest('[data-tab-id]');
+    if (!li) return;
+    tabs = collectTabs();
+    const i = tabs.findIndex((t) => t.id === li.dataset.tabId);
+    const mv = e.target.closest('[data-tab-move]');
+    if (mv) {
+      const j = i + Number(mv.dataset.tabMove);
+      [tabs[i], tabs[j]] = [tabs[j], tabs[i]];
+    } else if (e.target.closest('[data-tab-delete]')) {
+      const used = menu.filter((m) => m.tab === li.dataset.tabId).length;
+      if (used) return status(`이 분류에 메뉴가 ${used}개 있어 삭제할 수 없습니다. 메뉴를 다른 분류로 옮기거나 삭제한 뒤 지워 주세요.`, true);
+      if (tabs.length === 1) return status('분류는 1개 이상 남아 있어야 합니다.', true);
+      tabs.splice(i, 1);
+    } else {
+      return;
+    }
+    renderTabList();
+  });
+
+  $('[data-admin-tab-add]').addEventListener('click', () => {
+    tabs = collectTabs();
+    const id = `t${Date.now().toString(36)}`;
+    tabs.push({ id, label: '' });
+    renderTabList();
+    root.querySelector(`[data-tab-id="${id}"] .admin-tab-label`).focus();
+  });
+
+  $('[data-admin-tabs-save]').addEventListener('click', async (e) => {
+    const next = collectTabs();
+    if (next.some((t) => !t.label)) return status('이름이 빈 분류가 있습니다.', true);
+    await busy(e.currentTarget, async () => {
+      try {
+        tabs = (await post({ action: 'saveTabs', tabs: next })).tabs;
+        updateConfig({ tabs: clone(tabs) });
+        renderTabList();
+        renderMenu();
+        status('분류를 저장했습니다.');
+      } catch (err) {
+        status(failMsg(err), true);
       }
     });
   });

@@ -6,6 +6,13 @@
 // 3. 배포 → 새 배포 → 유형 "웹 앱" / 실행 계정 "나" / 액세스 권한 "모든 사용자" → 배포 → 권한 승인
 // 4. 나온 웹 앱 URL(…/exec)을 js/data.js의 REVIEWS_API_URL에 넣기
 // 코드를 고친 뒤에는 "배포 관리 → 수정 → 새 버전"으로 다시 배포해야 반영됨.
+// 사진 저장이 권한 문제로 실패하면: 편집기 위쪽 함수 목록에서 authorize 선택 → 실행 → 권한 승인.
+
+// 편집기에서 한 번 실행해 Drive·시트 권한을 승인받는 용도
+function authorize() {
+  DriveApp.getRootFolder();
+  SpreadsheetApp.getActiveSpreadsheet();
+}
 
 const SHEET_NAME = 'reviews';
 const HEADERS = ['id', 'at', 'rating', 'name', 'text'];
@@ -16,7 +23,7 @@ const NAME_MAX = 12;
 const MENU_SHEET = 'menu';
 const MENU_HEADERS = ['id', 'tab', 'name', 'short', 'desc', 'bill', 'option', 'photo', 'c1', 'c2'];
 const MENU_LIMITS = { id: 40, tab: 10, name: 30, short: 12, desc: 200, bill: 40, option: 10, photo: 300, c1: 30, c2: 30 };
-const TABS = ['egg', 'rice', 'wok', 'dessert', 'secret'];
+const TAB_KEY = /^[a-z0-9_]{1,20}$/;
 const OPTION_KEY = /^[A-Z0-9_]{1,20}$/;
 const DATE_KEY = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_KEY = /^\d{2}:\d{2}$/;
@@ -57,7 +64,13 @@ function withLock_(fn) {
 // ---------- 읽기 ----------
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'config') {
-    return json_({ ok: true, menu: readMenu_(), blocked: getSetting_('blocked'), options: getSetting_('options') });
+    return json_({
+      ok: true,
+      menu: readMenu_(),
+      blocked: getSetting_('blocked'),
+      options: getSetting_('options'),
+      tabs: getSetting_('tabs'),
+    });
   }
   return json_({ ok: true, reviews: readReviews_() });
 }
@@ -87,7 +100,7 @@ function readMenu_() {
   });
 }
 
-// settings 탭: key | value(JSON) — blocked(예약 불가), options(옵션 종류)
+// settings 탭: key | value(JSON) — blocked(예약 불가), options(옵션 종류), tabs(메뉴 분류)
 function getSetting_(key) {
   const rows = sheet_(SETTINGS_SHEET, ['key', 'value']).getDataRange().getValues();
   const row = rows.find((r) => r[0] === key);
@@ -109,7 +122,16 @@ function setSetting_(key, value) {
 }
 
 // ---------- 쓰기 ----------
+// 어떤 오류든 JSON으로 돌려줘서 관리자 화면에 원인이 보이게 함
 function doPost(e) {
+  try {
+    return handlePost_(e);
+  } catch (err) {
+    return json_({ ok: false, error: String((err && err.message) || err) });
+  }
+}
+
+function handlePost_(e) {
   let body;
   try {
     body = JSON.parse(e.postData.contents);
@@ -125,6 +147,7 @@ function doPost(e) {
     case 'saveMenu': return saveMenu_(body.menu);
     case 'saveBlocked': return saveBlocked_(body.blocked);
     case 'saveOptions': return saveOptions_(body.options);
+    case 'saveTabs': return saveTabs_(body.tabs);
     case 'uploadPhoto': return uploadPhoto_(body);
     default: return json_({ ok: false });
   }
@@ -160,7 +183,7 @@ function saveMenu_(menu) {
   for (const item of menu) {
     const row = MENU_HEADERS.map((h) => String(item[h] == null ? '' : item[h]).trim().slice(0, MENU_LIMITS[h]));
     const [id, tab, name, short, , bill, option, photo] = row;
-    if (!/^[\w-]+$/.test(id) || !TABS.includes(tab) || !name || !short || !bill || (option && !OPTION_KEY.test(option))) {
+    if (!/^[\w-]+$/.test(id) || !TAB_KEY.test(tab) || !name || !short || !bill || (option && !OPTION_KEY.test(option))) {
       return json_({ ok: false });
     }
     if (photo && !/^https:\/\//.test(photo)) return json_({ ok: false });
@@ -219,6 +242,22 @@ function saveOptions_(options) {
   }
   setSetting_('options', clean);
   return json_({ ok: true, options: clean });
+}
+
+// 메뉴 분류(탭) 목록을 통째로 교체: [{ id, label }]
+function saveTabs_(tabs) {
+  if (!Array.isArray(tabs) || !tabs.length || tabs.length > 12) return json_({ ok: false });
+  const seen = {};
+  const clean = [];
+  for (const t of tabs) {
+    const id = String((t && t.id) || '');
+    const label = String((t && t.label) || '').trim().slice(0, 10);
+    if (!TAB_KEY.test(id) || !label || seen[id]) return json_({ ok: false });
+    seen[id] = true;
+    clean.push({ id, label });
+  }
+  setSetting_('tabs', clean);
+  return json_({ ok: true, tabs: clean });
 }
 
 function photoFolder_() {
