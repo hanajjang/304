@@ -238,6 +238,38 @@ button, input { font: inherit; color: inherit; }
   color: var(--ink-muted);
 }
 
+/* 쟁반 + 탭: 스크롤 시 화면 위에 고정. 종이 결을 그대로 깔아 아래 카드가 비치지 않게 */
+.tray-dock {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-inline: calc(var(--sp-4) * -1);
+  padding: var(--sp-3) var(--sp-4) var(--sp-2);
+  background-color: var(--paper);
+  background-image:
+    repeating-linear-gradient(0deg, var(--paper-grain) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, var(--paper-grain) 0 1px, transparent 1px 3px);
+}
+
+/* 아래로 흐르는 카드가 쟁반 밑으로 스며들듯 */
+.tray-dock::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: var(--sp-3);
+  background: linear-gradient(var(--paper), transparent);
+  pointer-events: none;
+}
+
+@media (max-width: 380px) {
+  .tray-dock { margin-inline: calc(var(--sp-3) * -1); padding-inline: var(--sp-3); }
+}
+
 .tray {
   position: relative;
   width: 330px;

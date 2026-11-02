@@ -230,6 +230,11 @@ export function init(el) {
     activeTab = tab.dataset.tab;
     el.querySelectorAll('[data-tab]').forEach((t) => t.setAttribute('aria-pressed', String(t === tab)));
     renderList();
+    // 카드를 내려 본 상태에서 탭을 바꾸면 새 목록의 처음으로
+    const dock = el.querySelector('[data-tray-dock]');
+    const list = el.querySelector('[data-menu-list]');
+    const listTop = list.getBoundingClientRect().top + scrollY - dock.offsetHeight;
+    if (scrollY > listTop) scrollTo({ top: listTop, behavior: 'auto' });
   });
 
   el.querySelector('[data-tray-plates]').addEventListener('click', (e) => {

@@ -77,6 +77,8 @@
           <p class="aside"><em>아가씨, 오늘 헤드 셰프의 컨디션이 매우 훌륭하니 감사히 즐기시기 바랍니다.</em></p>
         </header>
 
+        <!-- 스크롤해도 쟁반·탭은 위에 고정, 메뉴 카드만 아래로 흐름 -->
+        <div class="tray-dock" data-tray-dock>
         <div class="tray" data-tray tabindex="-1">
           <span class="tray-badge" data-tray-badge aria-live="polite">만찬 0품</span>
           <p class="tray-empty" data-tray-empty>쟁반이 비어 있습니다. 집사가 대기 중입니다.</p>
@@ -90,6 +92,7 @@
           <button class="tab" type="button" data-tab="dessert" aria-pressed="false">디저트</button>
           <button class="tab" type="button" data-tab="secret" aria-pressed="false">시크릿</button>
         </nav>
+        </div>
 
         <ul class="menu-list" data-menu-list></ul>
 
