@@ -103,7 +103,7 @@ async function send() {
   const text = kakaoText(cartItems());
   const ok = await copy(text);
   const notice = root.querySelector('[data-sent-notice]');
-  notice.querySelector('[data-sent-title]').textContent = ok ? '청구서가 복사되었습니다' : '[문구 필요]';
+  notice.querySelector('[data-sent-title]').textContent = ok ? '청구서가 복사되었습니다' : '집사의 손이 미끄러졌습니다. 청구서를 다시 청해 주십시오.';
   notice.hidden = false;
   openKakao(text);
 }

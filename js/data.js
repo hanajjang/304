@@ -29,8 +29,8 @@ export const OPTION_SETS = {
   },
   // 자유 입력 1줄 (기타 메뉴)
   FREE: {
-    name: '[문구 필요]',
-    question: '[문구 필요]',
+    name: '특별 주문',
+    question: '아가씨, 메뉴판에 없는 것을 한 줄로 청해 보십시오. 가부는 심사 후 통보드립니다.',
     free: true,
   },
 };
@@ -79,9 +79,7 @@ export const KAKAO_JS_KEY = '';
 // 품평록 공유 시트: Apps Script 웹 앱 주소(…/exec) — 비어 있으면 이 브라우저(localStorage)에만 저장
 export const REVIEWS_API_URL = 'https://script.google.com/macros/s/AKfycbyx9YJRaf5Kc1kNFjGBFzrerA_4OLGMZttaDS7SSbDCIj5rn5I-7SQWLYWe7FCzxSbA1g/exec';
 
-// 방명록 시드 3개 — 문구·별점은 SPEC에 없어 자리만 잡아 둠
+// 방명록 시드 — 시트의 실제 품평 뒤에 붙음
 export const SEED_REVIEWS = [
   { id: 'seed-1', rating: 5, text: '맛있어요~최고야', name: 'hana', at: 3 },
-  { id: 'seed-2', rating: 5, text: '[문구 필요]', name: '익명의 귀빈', at: 2 },
-  { id: 'seed-3', rating: 5, text: '[문구 필요]', name: '익명의 귀빈', at: 1 },
 ];
