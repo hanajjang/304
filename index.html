@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>304호</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Great+Vibes&family=Nanum+Gothic+Coding:wght@400;700&family=Nanum+Pen+Script&family=Noto+Serif+KR:wght@700&display=swap">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/app.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <div class="app">
+    <main class="paper">
+
+      <!-- #welcome 입장 -->
+      <section data-screen="welcome" class="screen" aria-labelledby="welcome-title">
+        <header class="screen-head">
+          <p class="script" lang="en">Welcome</p>
+          <h1 id="welcome-title" class="title-kr" tabindex="-1">304호</h1>
+          <p class="eyebrow" lang="en">THE 304 RESIDENCE</p>
+        </header>
+
+        <div class="welcome-body">
+          <svg class="welcome-art" viewBox="0 0 200 170" role="img" aria-label="흰 장갑 손이 받쳐 든 은색 클로슈">
+            <defs>
+              <linearGradient id="cloche-pewter" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" class="pewter-hi"/>
+                <stop offset="1" class="pewter-lo"/>
+              </linearGradient>
+            </defs>
+            <!-- 소매·커프스·손목 -->
+            <rect class="sleeve" x="78" y="156" width="44" height="14"/>
+            <rect class="cuff ink-line" x="80" y="144" width="40" height="14" rx="3"/>
+            <path class="glove ink-line" d="M88 144 L90 122 L110 122 L112 144 Z"/>
+            <!-- 쟁반을 받친 손바닥과 손가락 -->
+            <path class="glove ink-line" d="M62 108 Q100 120 138 108 Q136 126 100 128 Q64 126 62 108 Z"/>
+            <ellipse class="glove ink-line" cx="60" cy="110" rx="7" ry="5"/>
+            <ellipse class="glove ink-line" cx="140" cy="110" rx="7" ry="5"/>
+            <!-- 클로슈 -->
+            <ellipse class="ink-line" fill="url(#cloche-pewter)" cx="100" cy="104" rx="72" ry="7"/>
+            <path class="ink-line" fill="url(#cloche-pewter)" d="M38 101 C38 62 66 42 100 42 C134 42 162 62 162 101 Z"/>
+            <path class="shine" d="M58 86 C60 70 72 58 88 53"/>
+            <rect class="ink-line" fill="url(#cloche-pewter)" x="97" y="34" width="6" height="9"/>
+            <circle class="ink-line" fill="url(#cloche-pewter)" cx="100" cy="30" r="7"/>
+          </svg>
+
+          <p class="welcome-copy">
+            304호의 문이 열렸습니다.<br>
+            아가씨, 누추한 바깥세상에서 고생 많으셨습니다.<br>
+            부디 이곳에서만큼은 품위를 잃지 마십시오.
+          </p>
+        </div>
+
+        <div class="dock">
+          <a class="btn btn-primary" href="#menu">만찬 장부 열기</a>
+          <a class="btn" href="#schedule" data-omakase>
+            <span>헤드 셰프에게 전적으로 맡기기</span>
+            <span class="btn-sub">제철 오마카세 · 메뉴 고르기 생략</span>
+          </a>
+          <a class="link-text" href="#guestbook">만찬 품평록 구경하기</a>
+        </div>
+      </section>
+
+      <!-- #menu 만찬 구성 -->
+      <section data-screen="menu" class="screen" aria-labelledby="menu-title" hidden>
+        <header class="screen-head">
+          <p class="script" lang="en">The 304 Residence</p>
+          <h1 id="menu-title" class="title-kr" tabindex="-1">304호 만찬 장부</h1>
+          <p class="aside"><em>아가씨, 오늘 헤드 셰프의 컨디션이 매우 훌륭하니 감사히 즐기시기 바랍니다.</em></p>
+        </header>
+
+        <div class="tray" data-tray>
+          <span class="tray-badge" data-tray-badge aria-live="polite">만찬 0품</span>
+          <p class="tray-empty" data-tray-empty>쟁반이 비어 있습니다. 집사가 대기 중입니다.</p>
+          <div class="tray-plates" data-tray-plates></div>
+        </div>
+
+        <nav class="tabs" aria-label="메뉴 분류">
+          <button class="tab" type="button" data-tab="egg" aria-pressed="true">달걀</button>
+          <button class="tab" type="button" data-tab="rice" aria-pressed="false">솥밥</button>
+          <button class="tab" type="button" data-tab="wok" aria-pressed="false">볶음·면</button>
+          <button class="tab" type="button" data-tab="dessert" aria-pressed="false">디저트</button>
+          <button class="tab" type="button" data-tab="secret" aria-pressed="false">시크릿</button>
+        </nav>
+
+        <ul class="menu-list" data-menu-list></ul>
+
+        <div class="dock">
+          <button class="btn btn-primary" type="button" data-to-schedule disabled>일정 정하기 →</button>
+        </div>
+
+        <div class="sheet-backdrop" data-sheet-backdrop hidden></div>
+        <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-menu-name" data-sheet hidden>
+          <p class="sheet-kicker" data-sheet-kicker></p>
+          <h2 id="sheet-menu-name" class="title-kr" data-sheet-name></h2>
+          <p class="sub" data-sheet-question></p>
+          <div class="sheet-options" data-sheet-options></div>
+          <div class="sheet-actions">
+            <button class="btn" type="button" data-sheet-cancel>물리기</button>
+            <button class="btn btn-primary" type="button" data-sheet-confirm>내 만찬에 허락하기</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- #schedule 일정 정하기 -->
+      <section data-screen="schedule" class="screen" aria-labelledby="schedule-title" hidden>
+        <header class="screen-head">
+          <h1 id="schedule-title" class="title-kr" tabindex="-1">언제 납시겠습니까, 아가씨?</h1>
+          <p class="sub">날짜 → 시간 → 인원 순서로 정해 주십시오.</p>
+        </header>
+
+        <section class="card" data-step="date" aria-labelledby="step-date">
+          <h2 id="step-date" class="card-title">날짜</h2>
+          <div data-calendar></div>
+        </section>
+
+        <section class="card" data-step="time" aria-labelledby="step-time" hidden>
+          <h2 id="step-time" class="card-title">시간</h2>
+          <div class="time-chips" data-times></div>
+        </section>
+
+        <section class="card" data-step="party" aria-labelledby="step-party" hidden>
+          <h2 id="step-party" class="card-title">인원</h2>
+          <div class="choice-row">
+            <button class="btn" type="button" data-party="1" aria-pressed="false">아가씨 1인</button>
+            <button class="btn" type="button" data-party="2" aria-pressed="false">아가씨 외 1인</button>
+          </div>
+          <p class="note">저택의 식탁은 최대 2분까지만 모십니다.</p>
+        </section>
+
+        <div class="dock">
+          <p class="dock-summary" data-schedule-summary>일정을 모두 정해 주십시오</p>
+          <button class="btn btn-primary" type="button" data-to-receipt disabled>청구서 보기 →</button>
+        </div>
+      </section>
+
+      <!-- #receipt 예약 심사 청구서 -->
+      <section data-screen="receipt" class="screen" aria-labelledby="receipt-title" hidden>
+        <h1 id="receipt-title" class="sr-only" tabindex="-1">예약 심사 청구서</h1>
+
+        <a class="summary-pill" href="#schedule">
+          <span data-receipt-schedule>11월 14일 (토) · 18:00 · 아가씨 외 1인</span>
+          <span class="summary-pill-action">변경</span>
+        </a>
+
+        <article class="receipt">
+          <p class="receipt-logo">304호</p>
+          <p class="receipt-center">정찬 · 능청 · 품위</p>
+          <p class="receipt-center">수석 집사 발행 · No. <span data-receipt-no>304-XXXX</span></p>
+          <hr class="receipt-rule">
+          <p class="receipt-center">* * * 예약 심사 청구 * * *</p>
+          <hr class="receipt-rule">
+          <ul class="receipt-items" data-receipt-items></ul>
+          <hr class="receipt-rule">
+          <p class="receipt-total"><span>TOTAL</span><span data-receipt-total></span></p>
+          <hr class="receipt-rule">
+          <p>결제 수단 : 설거지 보조 10분 &amp; 격렬한 리액션</p>
+          <p class="receipt-center">THANK YOU! 집사가 곧 회신드립니다.</p>
+        </article>
+
+        <section class="pledge" aria-labelledby="pledge-title">
+          <h2 id="pledge-title" class="pledge-title">※ 저택 엄벌 규정 서약</h2>
+          <ul>
+            <li>15분 이상 지각 시 주문된 정찬은 취소되며 간장계란밥으로 일괄 강등됩니다.</li>
+            <li>식사 후 10분간 성실한 접시 정리 및 말벗 보조 이행 의무가 발생합니다.</li>
+          </ul>
+          <label class="pledge-check">
+            <input type="checkbox" data-pledge>
+            위 규정에 서약합니다
+          </label>
+        </section>
+
+        <div class="dock">
+          <button class="btn btn-primary" type="button" data-send disabled>카카오톡으로 예약 심사 청구서 전송</button>
+          <div class="sent-notice" data-sent-notice role="status" hidden>
+            <p data-sent-title>청구서가 복사되었습니다</p>
+            <p>주인장 카톡에 붙여넣어 심사를 청하십시오.</p>
+            <a class="link-text" href="#guestbook">만찬 품평록 구경하기 →</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- #guestbook 만찬 품평록 -->
+      <section data-screen="guestbook" class="screen" aria-labelledby="guestbook-title" hidden>
+        <header class="screen-head">
+          <p class="script" lang="en">Dinner Review</p>
+          <h1 id="guestbook-title" class="title-kr" tabindex="-1">만찬 품평록</h1>
+          <p class="sub">다녀가신 귀빈의 소회를 기록합니다. 집사는 모든 문장을 한 글자도 빠짐없이 읽습니다.</p>
+          <p class="gb-stats">★ <span data-gb-avg>0.0</span> · 품평 <span data-gb-count>0</span>건</p>
+        </header>
+
+        <form class="gb-form" data-gb-form>
+          <fieldset class="stars">
+            <legend class="sr-only">별점</legend>
+            <button class="star" type="button" data-star="1" aria-label="별 1개" aria-pressed="false">★</button>
+            <button class="star" type="button" data-star="2" aria-label="별 2개" aria-pressed="false">★</button>
+            <button class="star" type="button" data-star="3" aria-label="별 3개" aria-pressed="false">★</button>
+            <button class="star" type="button" data-star="4" aria-label="별 4개" aria-pressed="false">★</button>
+            <button class="star" type="button" data-star="5" aria-label="별 5개" aria-pressed="false">★</button>
+          </fieldset>
+          <input class="field" type="text" name="text" aria-label="한 줄 품평" maxlength="80" required>
+          <input class="field" type="text" name="name" aria-label="이름 (선택)" placeholder="익명의 귀빈" maxlength="12">
+          <p class="gb-error" data-gb-error role="status" hidden>[문구 필요]</p>
+          <button class="btn btn-primary" type="submit">품평록에 기록하기</button>
+        </form>
+
+        <ul class="postcards" data-gb-list></ul>
+      </section>
+
+    </main>
+  </div>
+</body>
+</html>

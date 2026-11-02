@@ -1,0 +1,64 @@
+/* 304호 디자인 토큰 — 색·폰트는 이 파일의 변수만 사용 */
+:root {
+  /* 색 */
+  --gingham: rgb(79 119 166 / 0.55);   /* #4F77A6 55% */
+  --gingham-base: #F6F1E4;
+  --paper: #FBF7EC;
+  --paper-grain: rgb(31 53 86 / 0.035); /* 린넨 결 */
+  --ink: #1F3556;
+  --ink-muted: #44546A;
+  --primary: #2F5C8F;
+  --script: #4F77A6;
+  --line: #7E9BC0;
+  --line-soft: #C9D3E0;
+  --receipt-ink: #2A4A8A;
+  --warn: #9A3B2E;
+  --pewter-hi: #9A9E92;
+  --pewter-lo: #868B7E;
+  --pewter-edge: #6C7064;
+  --shadow: rgb(31 53 86 / 0.18);
+  --scrim: rgb(31 53 86 / 0.35);
+  --plate: #FFFFFF;
+  --tape: rgb(79 119 166 / 0.35);
+
+  /* 임시 음식 SVG 칩 (assets/food 이미지 없을 때) */
+  --food-yolk: #F2B84B;
+  --food-eggwhite: #F7F0DE;
+  --food-custard: #F3D58A;
+  --food-ketchup: #C2452D;
+  --food-rice: #EFE6D2;
+  --food-soy: #6B4A2B;
+  --food-silver: #AEB6C1;
+  --food-mushroom: #9C7A55;
+  --food-eggplant: #5E3F6E;
+  --food-kimchi: #C8502F;
+  --food-scallion: #6E9A4C;
+  --food-noodle: #E6C27A;
+  --food-jjajang: #3B2A20;
+  --food-mochi: #F3ECEE;
+  --food-berry: #D9677A;
+  --food-redbean: #74363A;
+  --food-wood: #B07A45;
+
+  /* 폰트 */
+  --font-script: "Great Vibes", cursive;
+  --font-title: "Noto Serif KR", serif;
+  --font-body: "Gowun Batang", serif;
+  --font-receipt: "Nanum Gothic Coding", monospace;
+  --font-hand: "Nanum Pen Script", cursive;
+
+  /* 간격·크기 */
+  --gingham-cell: 28px;
+  --paper-inset: 14px;
+  --app-max: 430px;
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --radius-paper: 6px;
+  --radius-card: 14px;
+  --radius-pill: 999px;
+  --tap: 44px;
+}
